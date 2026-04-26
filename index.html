@@ -6,123 +6,115 @@
 
 <style>
 body {
-    background:#f5f5f5;
+    background:#0f172a;
+    color:white;
     font-family:Arial;
-    margin:0;
+    text-align:center;
     padding:20px;
-}
-
-.container {
     max-width:500px;
     margin:auto;
 }
 
 h1 {
-    text-align:center;
     margin-bottom:5px;
 }
 
 p {
-    text-align:center;
-    color:gray;
-    margin-bottom:20px;
-}
-
-.card {
-    background:white;
-    padding:20px;
-    border-radius:20px;
+    color:#94a3b8;
 }
 
 .methods {
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
+    margin-top:20px;
 }
 
-.btn {
-    padding:18px;
-    border-radius:15px;
-    border:2px solid #ddd;
-    font-size:16px;
-    background:white;
+.method-btn {
+    width: 100%;
+    padding: 18px;
+    margin: 10px 0;
+    border-radius: 16px;
+    border: none;
+
+    font-size: 17px;
+    font-weight: 600;
+
+    background: #e5e7eb;
+    color: black;
+
+    transition: all 0.2s ease;
 }
 
-.btn.active {
-    background:#1976d2;
-    color:white;
-    border:none;
+.method-btn:active {
+    transform: scale(0.97);
 }
 
-.big-btn {
-    width:100%;
-    padding:18px;
-    margin-top:10px;
-    border-radius:15px;
-    font-size:16px;
-    background:#1976d2;
-    color:white;
-    border:none;
+.method-btn.active {
+    background: #22c55e;
+    color: black;
 }
 
 input {
-    width:100%;
-    padding:18px;
-    margin-top:15px;
-    border-radius:15px;
-    border:2px solid #ddd;
-    font-size:18px;
+    width: 100%;
+    padding: 18px;
+    border-radius: 16px;
+    border: none;
+    font-size: 18px;
+    margin-top: 15px;
+}
+
+.calc-btn {
+    width: 100%;
+    padding: 18px;
+    margin-top: 20px;
+
+    border-radius: 16px;
+    border: none;
+
+    font-size: 18px;
+    font-weight: bold;
+
+    background: #3b82f6;
+    color: white;
+
+    transition: all 0.2s ease;
+}
+
+.calc-btn:active {
+    transform: scale(0.97);
 }
 
 .result {
     margin-top:20px;
+    background:#1e293b;
     padding:15px;
-    border-radius:15px;
-    background:#e8f5e9;
-    font-size:16px;
+    border-radius:16px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-
-<h1>💱 Ondawave Exchanger</h1>
-<p>Рассчитайте комиссию</p>
-
-<div class="card">
-
-<h3>Метод оплаты</h3>
+<h1>Ondawave Exchanger</h1>
+<p>Commission Calculator</p>
 
 <div class="methods">
-    <button class="method-btn" onclick="selectMethod('PayPal')">PayPal</button>
-<button class="method-btn" onclick="selectMethod('CashApp')">CashApp</button>
-<button class="method-btn" onclick="selectMethod('Apple Cash')">Apple Cash</button>
-<button class="method-btn" onclick="selectMethod('Venmo')">Venmo</button>
-<button class="method-btn" onclick="selectMethod('Zelle')">Zelle</button>
-<button class="method-btn" onclick="selectMethod('PayPal Invoices')">PayPal Invoices</button>
 
-<button class="method-btn" onclick="selectMethod('Subscriptions', true)">
+<button class="method-btn" onclick="selectMethod('PayPal', false, event)">PayPal</button>
+<button class="method-btn" onclick="selectMethod('CashApp', false, event)">CashApp</button>
+<button class="method-btn" onclick="selectMethod('Apple Cash', false, event)">Apple Cash</button>
+<button class="method-btn" onclick="selectMethod('Venmo', false, event)">Venmo</button>
+<button class="method-btn" onclick="selectMethod('Zelle', false, event)">Zelle</button>
+<button class="method-btn" onclick="selectMethod('PayPal Invoices', false, event)">PayPal Invoices</button>
+
+<button class="method-btn" onclick="selectMethod('Subscriptions', true, event)">
 Оплата зарубежных подписок онлайн сервисов
 </button>
-</div>
 
-<button class="big-btn" onclick="subscriptionMode()">
-💳 Оплата зарубежных подписок онлайн сервисов
-</button>
+<input id="amount" placeholder="Введите сумму $" type="number">
 
-<h3>Введите сумму ($)</h3>
-
-<input id="amount" type="number" placeholder="0.00">
-
-<button class="big-btn" onclick="calculate()">
-Рассчитать чистую сумму
-</button>
+<button class="calc-btn" onclick="calculate()">Рассчитать</button>
 
 <div id="result" class="result" style="display:none;"></div>
 
-</div>
 </div>
 
 <script>
@@ -133,7 +125,6 @@ let selectedMethod = null;
 let usdRate = 92;
 let isSubscription = false;
 
-// получаем курс
 async function getRate() {
     try {
         let res = await fetch("https://www.cbr-xml-daily.ru/daily_json.js");
@@ -145,21 +136,17 @@ async function getRate() {
 }
 getRate();
 
-// выбор метода
-function selectMethod(method, subscription=false) {
+function selectMethod(method, subscription=false, e) {
     selectedMethod = method;
     isSubscription = subscription;
 
     document.querySelectorAll(".method-btn").forEach(btn => {
-        btn.style.background = "#e5e7eb";
-        btn.style.color = "black";
+        btn.classList.remove("active");
     });
 
-    event.target.style.background = "#22c55e";
-    event.target.style.color = "black";
+    e.target.classList.add("active");
 }
 
-// расчет
 function calculate() {
     let amount = parseFloat(document.getElementById("amount").value);
 
@@ -177,11 +164,9 @@ function calculate() {
     let receive = 0;
 
     if (isSubscription) {
-        // 🔥 логика подписок
         commission = 5;
         receive = amount + commission;
     } else {
-        // обычная комиссия 15%
         commission = amount * 0.15;
         receive = amount - commission;
     }
@@ -205,11 +190,11 @@ function calculate() {
         💎 В RUB: ${rubAmount.toFixed(0)} ₽
     `;
 
-    // отправка в бота
     tg.sendData(JSON.stringify({
         method: selectedMethod,
         amount: amount,
         result: receive,
+        rub: rubAmount,
         type: isSubscription ? "subscription" : "exchange"
     }));
 }
